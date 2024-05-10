@@ -7,7 +7,7 @@
 - Marc Serrano - 
 - Òscar Urenda - 1639392
 
-### Fitxers
+### Organització
 - src: Codi font del projecte
 - test_files: Fitxers locals de prova
   - audio: Format _WAV_
