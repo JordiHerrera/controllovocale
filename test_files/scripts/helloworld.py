@@ -1,0 +1,1 @@
+print('El jordi menja pinga')
