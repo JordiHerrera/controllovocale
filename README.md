@@ -2,9 +2,9 @@
 ## Controlador per veu d'un ordinador
 
 ### Integrants
-- Guillem Cadevall - 
+- Guillem Cadevall - 1632005
 - Jordi Herrera - 1638117 
-- Marc Serrano - 
+- Marc Serrano - 1632081
 - Òscar Urenda - 1639392
 
 ### Organització
