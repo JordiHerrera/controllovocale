@@ -10,6 +10,8 @@ import pygetwindow as gw
 import difflib
 #import tkinter as tk
 #from tkinter import font as tkfont
+import webbrowser
+import subprocess
 
 from google.cloud import storage
 
@@ -180,9 +182,9 @@ def scripts(distance=75):
                 #to implement
                 print("Not done") 
             elif action[i] == 'escribir':
-                pyautogui.write(action[i+1])
-                pyautogui.press('space')
                 i+=1
+                pyautogui.write(action[i])
+                pyautogui.press('space')
             elif action[i] == 'mover':
                 i+=2
                 if action[i] == 'arriba':
@@ -228,8 +230,26 @@ def scripts(distance=75):
                     pyautogui.click()
                 if action[i] == 'central':
                     pyautogui.middleClick()
+            elif action[i] == 'google':
+                i+=1
+                search_url = f"https://www.google.com/search?q={action[i]}"
+                webbrowser.open(search_url)
+            elif action[i] == 'archivos':
+                i+=1
+                if action[i] == 'escritorio':
+                    if i==len(action)-1:
+                        path = os.path.expanduser("~\Desktop")
+                    else:
+                        i+=1
+                        desktop_path = os.path.expanduser("~\Desktop")
+                        dir_to_search = action[i]
+                        for root, dirs, files in os.walk(desktop_path):
+                            if dir_to_search in dirs:
+                                path = os.path.join(root, dir_to_search)
+                                break
+                subprocess.Popen(f'explorer "{path}"')
             else:
-                print('Error not a scripts') 
+                print('Error not a scripts')
             i=i+1
             time.sleep(1)
 
