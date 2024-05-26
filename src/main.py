@@ -98,14 +98,28 @@ def delete_file(bucket_name, file_name):
     blob = bucket.blob(file_name)
     blob.delete()
 """
-SCRIPTS
+SCRIPTS------------------------------------------------------------------------
 """
+def find_best_match(original, candidates):
+    best_match = None
+    highest_ratio = 0.0
+    for candidate in candidates:
+        ratio = difflib.SequenceMatcher(None, original, candidate).ratio()
+        if ratio > highest_ratio:
+            highest_ratio = ratio
+            best_match = candidate
+    if highest_ratio>=0.35:
+        return best_match
+    else:
+        return ""
+
 def manage_windows(window_title, method):
     windows = gw.getAllTitles()
-    windows = [title for title in windows if title]
+    windows = [title.lower() for title in windows if title]
     
-    closest_match = difflib.get_close_matches(window_title, windows, n=1, cutoff=0.3)
-    if closest_match==[]:
+    closest_match=find_best_match(window_title,windows)
+    
+    if closest_match=="":
         return False
     closest_match = closest_match[0]
     
@@ -119,6 +133,10 @@ def manage_windows(window_title, method):
             return True
         elif method == 'c':
             window.close()
+            return True
+        elif method == 'o':
+            program_path = os.path.join('../programs', closest_match)
+            os.startfile(program_path)
             return True
     else:
         print("Window not found.")
@@ -179,8 +197,8 @@ def scripts(distance=75):
                 i+=1
                 manage_windows(action[i],'c')
             elif action[i] == 'abrir':
-                #to implement
-                print("Not done") 
+                i+=1
+                manage_windows(action[i],'o')
             elif action[i] == 'escribir':
                 i+=1
                 pyautogui.write(action[i])
@@ -236,18 +254,21 @@ def scripts(distance=75):
                 webbrowser.open(search_url)
             elif action[i] == 'archivos':
                 i+=1
-                if action[i] == 'escritorio':
-                    if i==len(action)-1:
-                        path = os.path.expanduser("~\Desktop")
-                    else:
-                        i+=1
-                        desktop_path = os.path.expanduser("~\Desktop")
-                        dir_to_search = action[i]
-                        for root, dirs, files in os.walk(desktop_path):
-                            if dir_to_search in dirs:
-                                path = os.path.join(root, dir_to_search)
-                                break
-                subprocess.Popen(f'explorer "{path}"')
+                if i == len(action):
+                    subprocess.Popen('explorer')
+                else:
+                    if action[i] == 'escritorio':
+                        if i==len(action)-1:
+                            path = os.path.expanduser("~\Desktop")
+                        else:
+                            i+=1
+                            desktop_path = os.path.expanduser("~\Desktop")
+                            dir_to_search = action[i]
+                            for root, dirs, files in os.walk(desktop_path):
+                                if dir_to_search in dirs:
+                                    path = os.path.join(root, dir_to_search)
+                                    break
+                    subprocess.Popen(f'explorer "{path}"')
             else:
                 print('Error not a scripts')
             i=i+1
