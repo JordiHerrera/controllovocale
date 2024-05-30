@@ -130,7 +130,7 @@ def scripts(distance=75):
         data = json.load(file)
     transcript = data.get('transcript')
     print("Se ha solicitado: " + transcript)
-    print_message(transcript)
+    print_heard(transcript)
     instruccions = data.get('instruccions')
 
     for action in instruccions:
@@ -147,7 +147,7 @@ def scripts(distance=75):
             elif action[i] == 'rehacer':
                 pyautogui.hotkey('ctrl', 'y')
             elif action[i] == 'apagar':
-                print_message("¿Estás seguro de que quieres apagar el equipo? Responde con afirmativo o negativo")
+                print_confirm("¿Estás seguro de que quieres apagar el equipo? Responde con afirmativo o negativo")
                 record_and_upload("audio")
                 blob = wait_for_new_file('audio-script-sm')
                 download_file('audio-script-sm', blob.name, "to_script.json")
@@ -155,7 +155,7 @@ def scripts(distance=75):
                 with open("to_script.json", 'r') as file:
                     data2 = json.load(file)
                 transcript2 = data2.get('transcript')
-                print_message("Se ha solicitado: " + transcript2)
+                print_heard("Se ha solicitado: " + transcript2)
                 instruccions2 = data2.get('instruccions')
                 for confirmation in instruccions2:
                     if confirmation == ["afirmativo"]:
@@ -163,7 +163,7 @@ def scripts(distance=75):
                     elif confirmation == ["negativo"]:
                         break
             elif action[i] == 'reiniciar':
-                print_message("¿Estás seguro de que quieres reiniciar el equipo? Responde con afirmativo o negativo")
+                print_confirm("¿Estás seguro de que quieres reiniciar el equipo? Responde con afirmativo o negativo")
                 record_and_upload("audio")
                 blob = wait_for_new_file('audio-script-sm')
                 download_file('audio-script-sm', blob.name, "to_script.json")
@@ -171,7 +171,7 @@ def scripts(distance=75):
                 with open("to_script.json", 'r') as file:
                     data2 = json.load(file)
                 transcript2 = data2.get('transcript')
-                print_message("Se ha solicitado: " + transcript2)
+                print_heard("Se ha solicitado: " + transcript2)
                 instruccions2 = data2.get('instruccions')
                 for confirmation in instruccions2:
                     if confirmation == ["afirmativo"]:
@@ -297,3 +297,9 @@ def scripts(distance=75):
 def print_message(message):
     print(message)
     eel.updateConsole(message)
+
+def print_heard(message):
+    eel.updateHeard(message)
+
+def print_confirm(message):
+    eel.updateConfirm(message)
