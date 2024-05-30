@@ -1,4 +1,4 @@
-# VoiceControl
+![logo](https://raw.githubusercontent.com/JordiHerrera/controllovocale/main/src/web/assets/Logo_light.png?token=GHSAT0AAAAAACSCWH6X5YVZ4SFGBXXPNIO2ZSY4SXQ)
 ## Controlador per veu d'un ordinador
 
 ### Integrants
