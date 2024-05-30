@@ -10,10 +10,24 @@ import webbrowser
 import subprocess
 import keyboard
 import eel
+import psutil
 from google.cloud import storage
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key.json'
 
+def list_active_processes():
+    # Get all running process IDs
+    process_ids = psutil.pids()
+
+    # Iterate over process IDs and get their details
+    processes = []
+    for pid in process_ids:
+        try:
+            process = psutil.Process(pid)
+            processes.append(process.name())
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+    return processes
 
 def record_and_upload(name):
     audio = pyaudio.PyAudio()
@@ -108,7 +122,7 @@ def manage_windows(window_title, method):
     windows = [title.lower() for title in windows if title]
     closest_match = find_best_match(window_title, windows)
     if closest_match == "":
-        return False
+        return False,closest_match
     window = gw.getWindowsWithTitle(closest_match)
     if window:
         window = window[0]
@@ -116,13 +130,13 @@ def manage_windows(window_title, method):
             if window.isMinimized == False:
                 window.minimize()
             window.restore()
-            return True
+            return True,closest_match
         elif method == 'c':
             window.close()
-            return True
+            return True,closest_match
     else:
         print_message("Ventana no encontrada.")
-        return False
+        return False,closest_match
 
 
 def scripts(distance=75):
@@ -130,7 +144,7 @@ def scripts(distance=75):
         data = json.load(file)
     transcript = data.get('transcript')
     print("Se ha solicitado: " + transcript)
-    print_heard(transcript)
+    print_heard("Se ha solicitado: " + transcript)
     instruccions = data.get('instruccions')
 
     for action in instruccions:
@@ -161,6 +175,7 @@ def scripts(distance=75):
                     if confirmation == ["afirmativo"]:
                         os.system('shutdown /s /t 1')
                     elif confirmation == ["negativo"]:
+                        print_confirm('')
                         break
             elif action[i] == 'reiniciar':
                 print_confirm("¿Estás seguro de que quieres reiniciar el equipo? Responde con afirmativo o negativo")
@@ -177,13 +192,16 @@ def scripts(distance=75):
                     if confirmation == ["afirmativo"]:
                         os.system('shutdown /r /t 1')
                     elif confirmation == ["negativo"]:
+                        print_confirm('')
                         break
             elif action[i] == 'cambiar':
                 i += 1
                 manage_windows(action[i], 'b')
             elif action[i] == 'cerrar':
                 i += 1
-                manage_windows(action[i], 'c')
+                _, close = manage_windows(action[i], 'c')
+                if (close == "control vocal"):
+                    return 0
             elif action[i] == 'abrir':
                 i += 1
                 closest_match = find_best_match(action[i], os.listdir('../programs'))
@@ -256,7 +274,16 @@ def scripts(distance=75):
                 pyautogui.write('spotify', interval=0.1)
                 time.sleep(1)
                 pyautogui.press('enter')
-                time.sleep(1)
+
+                found = False
+                while not found:
+                    procs = list_active_processes()
+                    print(procs)
+                    if 'Spotify.exe' in procs:
+                        found = True
+                        print('trobat')
+
+                time.sleep(5)
                 pyautogui.hotkey('ctrl', 'l')
                 time.sleep(1)
                 pyautogui.write(action[i], interval=0.1)
@@ -276,23 +303,13 @@ def scripts(distance=75):
                     if action[i] == 'escritorio':
                         if i == len(action) - 1:
                             path = os.path.expanduser("~\Desktop")
-                        else:
-                            i += 1
-                            desktop_path = os.path.expanduser("~\Desktop")
-                            dir_to_search = action[i]
-                            path = ""
-                            for root, dirs, files in os.walk(desktop_path):
-                                if dir_to_search in dirs:
-                                    path = os.path.join(root, dir_to_search)
-                                    break
-                    if path != "":
-                        subprocess.Popen(f'explorer "{path}"')
-                    else:
-                        print_message("Carpeta no encontrada.")
+                            subprocess.Popen(f'explorer "{path}"')
             else:
-                print_message('Error not a scripts')
+                print('Error not a scripts')
             i = i + 1
             time.sleep(1)
+
+    return 1
 
 def print_message(message):
     print(message)
